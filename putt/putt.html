@@ -1,4 +1,3 @@
-<!-- Version 3.00 AOS (Date : 2026. 02. 20)-->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -13,7 +12,6 @@
             background-color: #f0f2f5; 
             display: flex; 
             justify-content: center; 
-            /* [수정 1] 상하 중앙 정렬을 위해 flex-start를 center로 변경 */
             align-items: center; 
             min-height: 100vh; 
             padding: 20px; 
@@ -23,7 +21,6 @@
             background-color: white; 
             width: 100%; 
             max-width: 400px; 
-            /* [수정 2] 앱 환경에 맞게 최소 높이를 700px로 변경 */
             min-height: 700px; 
             display: flex;
             flex-direction: column;
@@ -35,6 +32,21 @@
 
         h2 { text-align: center; color: #333; margin-bottom: 20px; font-size: 1.5rem; margin-top: 10px; }
         
+        /* 새로고침 버튼 스타일 (타이틀 살짝 아래 오른쪽 끝) */
+        .refresh-btn {
+            position: absolute;
+            top: 45px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            padding: 5px;
+        }
+        .refresh-btn:hover { opacity: 1; }
+
         .section { margin-bottom: 20px; }
         .section-title { font-size: 0.9rem; color: #666; margin-bottom: 8px; font-weight: 600; }
         
@@ -173,6 +185,7 @@
 
     <div class="container">
         <h2>Putting Calculator</h2>
+        <button class="refresh-btn" onclick="forceReload()" title="새로고침">🔄</button>
 
         <div class="section">
             <div class="section-title">Green Speed</div>
@@ -243,7 +256,7 @@
             </div>
             </div>
 
-        <div class="version">Ver 1.50</div>
+        <div class="version">Ver 3.01</div>
     </div>
 
     <script>
@@ -253,6 +266,12 @@
         window.onload = function() {
             loadSettings();
         };
+
+        // 강제 새로고침 (캐시 무시) 기능
+        function forceReload() {
+            const currentUrl = window.location.href.split('?')[0]; // 기존 파라미터 제거
+            window.location.href = currentUrl + '?t=' + new Date().getTime(); // 현재 시간을 붙여서 새로운 페이지로 인식하게 함
+        }
 
         function selectSpeed(element, value) {
             currentSpeed = value;
@@ -283,9 +302,9 @@
             }
         }
 
-        // [수정] 경사 입력: 정수만 허용 (소수점 제거)
+        // 경사 입력: 정수만 허용 (소수점 제거)
         function limitInteger(e) {
-            e.value = e.value.replace(/[^0-9]/g, ''); // 숫자 외 문자 제거 (소수점 포함)
+            e.value = e.value.replace(/[^0-9]/g, ''); 
         }
 
         function floorToTwo(num) {
@@ -320,48 +339,40 @@
 
         function calculate() {
             const lengthInput = document.getElementById('putt-length').value;
-            const slopeInput = document.getElementById('slope-degree').value; // 이제 정수값
+            const slopeInput = document.getElementById('slope-degree').value;
             
             const lowFactor = parseFloat(document.getElementById('low-factor').value) || 10;
             const highFactor = parseFloat(document.getElementById('high-factor').value) || 15;
             
-            // 기준 Threshold는 0.2 (즉, 입력값이 20)
-            // 내부 로직상 Real Slope 0.2와 비교해야 하므로, 입력값 20과 비교
             const inputThreshold = 20; 
 
             const display = document.getElementById('result-display');
 
             let length = parseFloat(lengthInput);
-            let slopeInt = parseFloat(slopeInput); // 정수 입력값 (예: 20)
+            let slopeInt = parseFloat(slopeInput); 
 
             if (isNaN(length) || isNaN(slopeInt)) {
                 display.innerText = "0.00 m";
                 return;
             }
 
-            // [핵심 변경] 공식: 실제 계산에 쓰이는 Slope = 입력값 / 100
             let realSlope = slopeInt / 100; 
 
             let result = 0;
             let appliedFactor = 0;
 
-            // 분기: 실제 Slope가 0.2 미만이냐 이상이냐 (입력값 20 기준)
             if (slopeInt < inputThreshold) {
-                // 입력값 20 미만 (0.2 미만)
                 appliedFactor = lowFactor; 
             } else {
-                // 입력값 20 이상 (0.2 이상)
                 appliedFactor = highFactor; 
             }
 
-            // 계산
             if (currentSlopeType === 'uphill') {
                 result = length + (realSlope * appliedFactor);
             } else {
                 result = length - (realSlope * appliedFactor);
             }
 
-            // 스피드 보정
             if (currentSpeed === 'very') {
                 result = result * 0.6;
             }
