@@ -1,0 +1,375 @@
+
+<!-- version 1.50 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Putting Calculator</title>
+    <style>
+        /* 기본 스타일 초기화 */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background-color: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        
+        .container { 
+            background-color: white; 
+            width: 100%; 
+            max-width: 400px; 
+            min-height: 650px; 
+            display: flex;
+            flex-direction: column;
+            border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            padding: 20px; 
+            position: relative;
+        }
+
+        h2 { text-align: center; color: #333; margin-bottom: 20px; font-size: 1.5rem; margin-top: 10px; }
+        
+        .section { margin-bottom: 20px; }
+        .section-title { font-size: 0.9rem; color: #666; margin-bottom: 8px; font-weight: 600; }
+        
+        .btn-group { display: flex; gap: 10px; }
+        
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background-color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-speed.active { background-color: #2e7d32; color: white; border-color: #2e7d32; font-weight: 700; }
+        .btn-uphill.active { background-color: #ffcdd2; color: #ffffff; border-color: #ffcdd2; font-weight: 700; }
+        .btn-downhill.active { background-color: #bbdefb; color: #ffffff; border-color: #bbdefb; font-weight: 700; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-label { display: block; margin-bottom: 6px; font-size: 0.95rem; color: #333; }
+        
+        input[type="number"] { 
+            width: 100%; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 12px; 
+            font-size: 1.1rem; 
+            outline: none; 
+            transition: border-color 0.2s; 
+        }
+        input[type="number"]:focus { border-color: #333; }
+
+        .result-box { 
+            background-color: #eceff1; 
+            border-radius: 15px; 
+            padding: 20px; 
+            text-align: center; 
+            margin-top: 10px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100px;
+        }
+        .result-label { font-size: 0.9rem; color: #546e7a; margin-bottom: 5px; }
+        .result-value { font-size: 2rem; font-weight: 800; color: #263238; }
+
+        /* Tip 스타일 */
+        .tip-toggle {
+            text-align: center;
+            margin-top: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #f57f17; 
+            font-weight: 600;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            background-color: #fff8e1;
+            border-radius: 10px;
+        }
+
+        .tip-panel {
+            display: none;
+            background-color: #fffde7; 
+            border: 1px solid #fff9c4;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            animation: fadeIn 0.3s;
+            font-size: 0.85rem;
+            color: #444;
+        }
+
+        .tip-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .tip-table th { text-align: left; padding: 5px; border-bottom: 1px solid #ddd; color: #f57f17; }
+        .tip-table td { padding: 5px; border-bottom: 1px solid #eee; }
+        .tip-table tr:last-child td { border-bottom: none; }
+        .tip-header { font-weight: bold; margin-bottom: 5px; color: #333; margin-top: 5px;}
+
+        /* 설정 스타일 */
+        .settings-toggle {
+            text-align: center;
+            margin-top: 15px; 
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #90a4ae;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-panel {
+            display: none;
+            background-color: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            animation: fadeIn 0.3s;
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .settings-row:last-child { margin-bottom: 0; }
+        .settings-label { font-size: 0.85rem; color: #555; }
+        .settings-input { width: 80px !important; padding: 8px !important; font-size: 0.9rem !important; text-align: right; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .version { 
+            text-align: right; 
+            font-size: 0.75rem; 
+            color: #b0bec5; 
+            margin-right: 5px; 
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Putting Calculator</h2>
+
+        <div class="section">
+            <div class="section-title">Green Speed</div>
+            <div class="btn-group" id="green-speed-group">
+                <button class="btn btn-speed active" onclick="selectSpeed(this, 'slight')">약간 빠름</button>
+                <button class="btn btn-speed" onclick="selectSpeed(this, 'very')">매우 빠름</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Slope Type</div>
+            <div class="btn-group" id="slope-type-group">
+                <button class="btn btn-uphill active" onclick="selectSlopeType(this, 'uphill')">Uphill putt</button>
+                <button class="btn btn-downhill" onclick="selectSlopeType(this, 'downhill')">Downhill putt</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="input-group">
+                <label class="input-label">Putt length (m)</label>
+                <input type="number" id="putt-length" placeholder="0.00" step="0.01" inputmode="decimal" oninput="limitDecimalPlaces(this); calculate()">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Slope (integer)</label>
+                <input type="number" id="slope-degree" placeholder="0" step="1" inputmode="numeric" pattern="[0-9]*" oninput="limitInteger(this); calculate()">
+            </div>
+        </div>
+
+        <div class="result-box">
+            <div class="result-label">Recommended Distance</div>
+            <div class="result-value" id="result-display">0.00 m</div>
+        </div>
+
+        <div class="tip-toggle" onclick="toggleTip()">
+            <span>💡 Ball Speed Guide (Click)</span>
+        </div>
+        <div class="tip-panel" id="tip-panel">
+            <div class="tip-header">1. 약간 빠름 (2.6 m/s)</div>
+            <table class="tip-table">
+                <tr><td>3m : 2.5 m/s</td> <td>10m : 4.7 m/s</td></tr>
+                <tr><td>5m : 3.2 m/s</td> <td>15m : 5.6 m/s</td></tr>
+                <tr><td>7m : 3.9 m/s</td> <td>20m : 6.3 m/s</td></tr>
+            </table>
+
+            <div class="tip-header">2. 매우 빠름 (3.1 m/s)</div>
+            <table class="tip-table" style="margin-bottom: 0;">
+                <tr><td>3m : 2.1 m/s</td> <td>10m : 4.2 m/s</td></tr>
+                <tr><td>5m : 2.9 m/s</td> <td>15m : 5.6 m/s</td></tr>
+                <tr><td>7m : 3.5 m/s</td> <td></td></tr>
+            </table>
+        </div>
+
+        <div class="settings-toggle" onclick="toggleSettings()">
+            <span>⚙️ Calibration Settings</span>
+        </div>
+
+        <div class="settings-panel" id="settings-panel">
+            <div style="font-size:0.8rem; color:#888; margin-bottom:10px; text-align:center;">
+                Real Slope Threshold: 0.2 (Input 20)
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">Low Slope Factor (&lt; 20)</span>
+                <input type="number" id="low-factor" class="settings-input" value="10" oninput="saveSettings(); calculate()">
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">High Slope Factor (≥ 20)</span>
+                <input type="number" id="high-factor" class="settings-input" value="15" oninput="saveSettings(); calculate()">
+            </div>
+            </div>
+
+        <div class="version">Ver 1.50</div>
+    </div>
+
+    <script>
+        let currentSpeed = 'slight'; 
+        let currentSlopeType = 'uphill'; 
+
+        window.onload = function() {
+            loadSettings();
+        };
+
+        function selectSpeed(element, value) {
+            currentSpeed = value;
+            updateBtnActive('green-speed-group', element);
+            calculate();
+        }
+
+        function selectSlopeType(element, value) {
+            currentSlopeType = value;
+            updateBtnActive('slope-type-group', element);
+            calculate();
+        }
+
+        function updateBtnActive(groupId, activeBtn) {
+            const group = document.getElementById(groupId);
+            const buttons = group.getElementsByClassName('btn');
+            for (let btn of buttons) {
+                btn.classList.remove('active');
+            }
+            activeBtn.classList.add('active');
+        }
+
+        // 거리 입력: 소수점 2자리 제한
+        function limitDecimalPlaces(e) {
+            let t = e.value;
+            if (t.indexOf(".") >= 0 && t.substr(t.indexOf(".") + 1).length > 2) {
+                e.value = t.substr(0, t.indexOf(".") + 3);
+            }
+        }
+
+        // [수정] 경사 입력: 정수만 허용 (소수점 제거)
+        function limitInteger(e) {
+            e.value = e.value.replace(/[^0-9]/g, ''); // 숫자 외 문자 제거 (소수점 포함)
+        }
+
+        function floorToTwo(num) {
+            return Math.floor(num * 100) / 100;
+        }
+
+        function toggleTip() {
+            const panel = document.getElementById('tip-panel');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function saveSettings() {
+            const lowVal = document.getElementById('low-factor').value;
+            const highVal = document.getElementById('high-factor').value;
+            
+            if(lowVal) localStorage.setItem('golf_low_factor', lowVal);
+            if(highVal) localStorage.setItem('golf_high_factor', highVal);
+        }
+
+        function loadSettings() {
+            const savedLow = localStorage.getItem('golf_low_factor');
+            const savedHigh = localStorage.getItem('golf_high_factor');
+
+            if (savedLow !== null) document.getElementById('low-factor').value = savedLow;
+            if (savedHigh !== null) document.getElementById('high-factor').value = savedHigh;
+        }
+
+        function calculate() {
+            const lengthInput = document.getElementById('putt-length').value;
+            const slopeInput = document.getElementById('slope-degree').value; // 이제 정수값
+            
+            const lowFactor = parseFloat(document.getElementById('low-factor').value) || 10;
+            const highFactor = parseFloat(document.getElementById('high-factor').value) || 15;
+            
+            // 기준 Threshold는 0.2 (즉, 입력값이 20)
+            // 내부 로직상 Real Slope 0.2와 비교해야 하므로, 입력값 20과 비교
+            const inputThreshold = 20; 
+
+            const display = document.getElementById('result-display');
+
+            let length = parseFloat(lengthInput);
+            let slopeInt = parseFloat(slopeInput); // 정수 입력값 (예: 20)
+
+            if (isNaN(length) || isNaN(slopeInt)) {
+                display.innerText = "0.00 m";
+                return;
+            }
+
+            // [핵심 변경] 공식: 실제 계산에 쓰이는 Slope = 입력값 / 100
+            let realSlope = slopeInt / 100; 
+
+            let result = 0;
+            let appliedFactor = 0;
+
+            // 분기: 실제 Slope가 0.2 미만이냐 이상이냐 (입력값 20 기준)
+            if (slopeInt < inputThreshold) {
+                // 입력값 20 미만 (0.2 미만)
+                appliedFactor = lowFactor; 
+            } else {
+                // 입력값 20 이상 (0.2 이상)
+                appliedFactor = highFactor; 
+            }
+
+            // 계산
+            if (currentSlopeType === 'uphill') {
+                result = length + (realSlope * appliedFactor);
+            } else {
+                result = length - (realSlope * appliedFactor);
+            }
+
+            // 스피드 보정
+            if (currentSpeed === 'very') {
+                result = result * 0.6;
+            }
+
+            if (result < 0) result = 0;
+
+            const finalResult = floorToTwo(result);
+            display.innerText = finalResult.toFixed(2) + " m";
+        }
+    </script>
+</body>
+</html>
