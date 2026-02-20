@@ -1,0 +1,393 @@
+<!-- Version 2.00 (Date : 2026. 02. 20)-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dev.Archive</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --container-bg: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --border-color: #eaeaea;
+            --accent-color: #000000;
+            --hover-bg: #f4f4f4;
+            
+            /* 헤더 높이: 모바일/PC 반응형 처리를 위해 auto로 변경 가능성 열어둠 */
+            --header-height-compact: 60px;
+            
+            /* 좌우 여백 변수 (PC 기준) */
+            --side-padding: 40px;
+        }
+
+        /* 모바일용 변수 재정의 */
+        @media (max-width: 768px) {
+            :root {
+                --side-padding: 20px; /* 모바일에서는 여백을 줄임 */
+            }
+        }
+
+        body.dark-mode {
+            --bg-color: #111111;
+            --container-bg: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #333333;
+            --accent-color: #ffffff;
+            --hover-bg: #252525;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+        }
+
+        /* === 1. Header Area === */
+        header {
+            background-color: var(--bg-color);
+            padding: 30px var(--side-padding); /* 변수 적용 */
+            border-bottom: 2px solid var(--text-primary);
+            flex-shrink: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column; /* 세로 배치로 변경 */
+            gap: 15px;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* 상단 라인: 타이틀 + 테마버튼/메뉴버튼 */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+            cursor: pointer;
+            transition: font-size 0.3s ease;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1.4rem; /* 버튼 크기 키움 */
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 하단 라인: 부제 + 검색창 */
+        .header-bottom {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            opacity: 1;
+            transition: opacity 0.2s ease, height 0.3s ease;
+        }
+
+        .header-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 300px; /* PC에서는 너무 길지 않게 */
+        }
+
+        .search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--text-secondary);
+            color: var(--text-primary);
+            padding: 8px 0;
+            font-size: 1rem;
+            outline: none;
+            border-radius: 0; /* 모바일 사파리 둥글게 됨 방지 */
+        }
+        .search-input:focus { border-color: var(--accent-color); }
+        .search-input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+
+
+        /* === Compact Mode (프로젝트 열람 시) === */
+        header.compact {
+            height: var(--header-height-compact);
+            padding: 0 var(--side-padding);
+            justify-content: center;
+            gap: 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header.compact .header-title h1 {
+            font-size: 1.5rem;
+        }
+
+        /* Compact 모드에서는 하단(부제+검색) 숨김 */
+        header.compact .header-bottom {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none;
+            margin: 0; /* 마진 제거 */
+        }
+
+        /* Compact 모드에서는 테마 버튼 숨김 (Menu 버튼과 교체) */
+        header.compact #themeBtn {
+            display: none;
+        }
+
+        /* Menu Button */
+        #menuBtn {
+            display: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--text-primary);
+            padding: 6px 16px;
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        header.compact #menuBtn {
+            display: block;
+        }
+
+
+        /* === 2. Content Area === */
+        .main-content {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .list-view {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px 0; /* 상하 패딩만 줌 */
+        }
+
+        .project-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* 좌우 패딩을 헤더와 동일한 변수 사용 --> 정렬 맞춤 */
+            padding: 25px var(--side-padding);
+            border-bottom: 1px solid var(--border-color);
+            text-decoration: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .project-item:hover { background-color: var(--hover-bg); }
+        
+        /* 호버 시 화살표 이동 효과 (PC에서만 유효하지만 코드 유지) */
+        .project-item:hover .project-content { transform: translateX(5px); transition: transform 0.2s; }
+        
+        .project-content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.2s;
+        }
+
+        .project-title { font-size: 1.1rem; font-weight: 600; }
+        .project-desc { font-size: 0.85rem; color: var(--text-secondary); }
+        
+        .arrow { font-size: 1.2rem; }
+
+        .no-result { text-align: center; padding: 50px; color: var(--text-secondary); display: none; }
+
+        /* === 3. Iframe View === */
+        .frame-view {
+            position: fixed;
+            top: var(--header-height-compact);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height-compact));
+            background: #fff;
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+        }
+
+        iframe { width: 100%; height: 100%; border: none; }
+
+    </style>
+</head>
+<body>
+
+    <header id="mainHeader">
+        <div class="header-top">
+            <div class="header-title" onclick="closeProject()">
+                <h1>WORKSPACE</h1>
+            </div>
+            
+            <div class="header-right-controls">
+                <button class="btn-icon" id="themeBtn" title="Toggle Theme">◐</button>
+                <button id="menuBtn" onclick="closeProject()">Menu</button>
+            </div>
+        </div>
+
+        <div class="header-bottom">
+            <p class="header-subtitle">Personal Development Archive</p>
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search projects...">
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" id="listView">
+        <div id="projectList">
+            </div>
+        <div id="noResult" class="no-result">No projects found.</div>
+    </main>
+
+    <div class="frame-view" id="frameView">
+        <iframe id="projectFrame" src="" title="Project Viewer"></iframe>
+    </div>
+
+    <script>
+        // ==========================================
+        // [DATA] Project Data
+        // ==========================================
+        const projectData = [
+            { 
+                id: "01", 
+                title: "사칙연산 게임 (PC용)", 
+                desc: "아들을 위한 학습 게임", 
+                link: "https://math.s3.ap-northeast-2.amazonaws.com/math_quiz_v2.html" 
+            },
+            { 
+                id: "02", 
+                title: "Fortune Bridge (PC용)", 
+                desc: "Put Your Luck to the Test", 
+                link: "https://math.s3.ap-northeast-2.amazonaws.com/fc.html" 
+            },
+            { 
+                id: "03", 
+                title: "Lotto645 조합생성기", 
+                desc: "Try Your Luck", 
+                link: "https://kayssler.s3.ap-northeast-2.amazonaws.com/lotto645/index.html" 
+            },
+            { 
+                id: "04", 
+                title: "Putting Calculator", 
+                desc: "골프존 퍼팅 계산기", 
+                link: "https://kayssler.s3.ap-northeast-2.amazonaws.com/putt/putt.html" 
+            },
+            { 
+                id: "05", 
+                title: "테스트 프로젝트 5", 
+                desc: "설명 텍스트 예시", 
+                link: "#" 
+            }
+        ];
+
+        // ==========================================
+        // [LOGIC]
+        // ==========================================
+        const mainHeader = document.getElementById('mainHeader');
+        const listView = document.getElementById('listView');
+        const frameView = document.getElementById('frameView');
+        const projectFrame = document.getElementById('projectFrame');
+        const listContainer = document.getElementById('projectList');
+        const noResult = document.getElementById('noResult');
+        const searchInput = document.getElementById('searchInput');
+
+        // 1. Render Lists
+        function renderProjects(data) {
+            listContainer.innerHTML = '';
+            if (data.length === 0) {
+                noResult.style.display = 'block';
+                return;
+            } else {
+                noResult.style.display = 'none';
+            }
+
+            data.forEach(project => {
+                const item = document.createElement('div');
+                item.className = 'project-item';
+                item.innerHTML = `
+                    <div class="project-content">
+                        <span class="project-title">${project.id}. ${project.title}</span>
+                        <span class="project-desc">${project.desc}</span>
+                    </div>
+                    <div class="arrow">→</div>
+                `;
+                item.addEventListener('click', () => openProject(project.link));
+                listContainer.appendChild(item);
+            });
+        }
+        renderProjects(projectData);
+
+        // 2. Open Project
+        function openProject(url) {
+            if (!url || url === '#') return alert('Link is not ready.');
+
+            // UI Mode Change
+            mainHeader.classList.add('compact');
+            listView.style.display = 'none';
+            frameView.style.display = 'flex';
+            
+            // Load URL
+            projectFrame.src = url;
+        }
+
+        // 3. Close Project
+        function closeProject() {
+            // UI Mode Restore
+            mainHeader.classList.remove('compact');
+            frameView.style.display = 'none';
+            listView.style.display = 'block';
+
+            // Reset Iframe
+            projectFrame.src = '';
+        }
+
+        // 4. Search
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+            const filtered = projectData.filter(p => 
+                p.title.toLowerCase().includes(keyword) || 
+                p.desc.toLowerCase().includes(keyword)
+            );
+            renderProjects(filtered);
+        });
+
+        // 5. Dark Mode
+        const themeBtn = document.getElementById('themeBtn');
+        const body = document.body;
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') body.classList.add('dark-mode');
+
+        themeBtn.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>
